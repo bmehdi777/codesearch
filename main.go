@@ -1,8 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"codesearch/server"
+	"fmt"
+	"os"
+)
 
 
 func main() {
-	fmt.Println("hello world")
+	err := server.NewServer()
+	if err != nil {
+		fmt.Println("An error occured while launching the server : ", err)
+		os.Exit(1)
+	}
 }
