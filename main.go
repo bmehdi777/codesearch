@@ -1,16 +1,14 @@
 package main
 
 import (
-	"codesearch/server"
+	"codesearch/cmd"
 	"fmt"
 	"os"
 )
 
-
 func main() {
-	err := server.NewServer()
-	if err != nil {
-		fmt.Println("An error occured while launching the server : ", err)
+	if err := cmd.HandleCmd(); err != nil {
+		fmt.Println("An error occured while handling subcommand : ", err)
 		os.Exit(1)
 	}
 }
