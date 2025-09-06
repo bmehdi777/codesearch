@@ -1,5 +1,20 @@
 package search
 
+import (
+	"codesearch/utils"
+	"encoding/json"
+	"errors"
+	"strings"
+)
+
+const COMMAND = "rg"
+
+type Ripgrep struct {
+	Query   string
+	Path    string
+	Options []string
+}
+
 type ResultType string
 
 const (
@@ -9,6 +24,7 @@ const (
 	ResultTypeSummary ResultType = "summary"
 )
 
+type ResultSearch interface{}
 
 type ResultSearchBegin struct {
 	Type ResultType `json:"type"`
@@ -41,7 +57,7 @@ type ResultSearchMatch struct {
 }
 
 type ResultSearchEnd struct {
-	Type string `json:"type"`
+	Type ResultType `json:"type"`
 	Data struct {
 		Path struct {
 			Text string `json:"text"`
@@ -62,7 +78,6 @@ type ResultSearchEnd struct {
 		} `json:"stats"`
 	} `json:"data"`
 }
-
 
 type ResultSearchSummary struct {
 	Type ResultType `json:"type"`
@@ -86,4 +101,56 @@ type ResultSearchSummary struct {
 			SearchesWithMatch int `json:"searches_with_match"`
 		} `json:"stats"`
 	} `json:"data"`
+}
+
+func (rg *Ripgrep) Search() error {
+	exist, err := utils.VerifyPathExist(rg.Path)
+	if err != nil {
+		return err
+	}
+	if !exist {
+		return errors.New("Path doesn't exist")
+	}
+
+	parameters := append([]string{rg.Query, rg.Path}, rg.Options...)
+
+	result, err := utils.ExecCommand(COMMAND, parameters)
+	if err != nil {
+		return err
+	}
+
+	lineResult := strings.Split(result, "\n")
+
+	for _, line := range lineResult {
+		byteLine := []byte(line)
+		rg.MapToStruct(byteLine)
+		// convert these struct into a local search struct
+	}
+
+	return nil
+}
+
+func (rg *Ripgrep) MapToStruct(line []byte) (ResultSearch, error) {
+	var m map[string]interface{}
+	err := json.Unmarshal(line, &m)
+	if err != nil {
+		return nil, err
+	}
+
+	var resultSearch ResultSearch
+
+	switch m["type"].(string) {
+	case "begin":
+		resultSearch = &ResultSearchBegin{}
+	case "match":
+		resultSearch = &ResultSearchMatch{}
+	case "end":
+		resultSearch = &ResultSearchEnd{}
+	case "summary":
+		resultSearch = &ResultSearchSummary{}
+	}
+
+	err = json.Unmarshal(line, resultSearch)
+
+	return resultSearch, err
 }
