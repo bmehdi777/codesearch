@@ -24,9 +24,9 @@ const (
 	ResultTypeSummary ResultType = "summary"
 )
 
-type ResultSearch interface{}
+type RGResultSearch interface{}
 
-type ResultSearchBegin struct {
+type RGResultSearchBegin struct {
 	Type ResultType `json:"type"`
 	Data struct {
 		Path struct {
@@ -35,7 +35,7 @@ type ResultSearchBegin struct {
 	} `json:"data"`
 }
 
-type ResultSearchMatch struct {
+type RGResultSearchMatch struct {
 	Type ResultType `json:"type"`
 	Data struct {
 		Path struct {
@@ -56,7 +56,7 @@ type ResultSearchMatch struct {
 	} `json:"data"`
 }
 
-type ResultSearchEnd struct {
+type RGResultSearchEnd struct {
 	Type ResultType `json:"type"`
 	Data struct {
 		Path struct {
@@ -79,7 +79,7 @@ type ResultSearchEnd struct {
 	} `json:"data"`
 }
 
-type ResultSearchSummary struct {
+type RGResultSearchSummary struct {
 	Type ResultType `json:"type"`
 	Data struct {
 		ElapsedTotal struct {
@@ -103,54 +103,68 @@ type ResultSearchSummary struct {
 	} `json:"data"`
 }
 
-func (rg *Ripgrep) Search() error {
+func (rg *Ripgrep) Search() ([]SearchResult, error) {
 	exist, err := utils.VerifyPathExist(rg.Path)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if !exist {
-		return errors.New("Path doesn't exist")
+		return nil, errors.New("Path doesn't exist")
 	}
 
 	parameters := append([]string{rg.Query, rg.Path}, rg.Options...)
 
 	result, err := utils.ExecCommand(COMMAND, parameters)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	lineResult := strings.Split(result, "\n")
 
+	searchResults := make([]SearchResult, 0)
+
+
+	// these two blockes certainly need a refacto
+	rgResults := make([]RGResultSearch, 0)
 	for _, line := range lineResult {
 		byteLine := []byte(line)
-		rg.MapToStruct(byteLine)
-		// convert these struct into a local search struct
+		res, err := rg.MapJSONToRGStruct(byteLine)
+		if err != nil {
+			return nil, err
+		}
+
+		rgResults = append(rgResults, res)
 	}
 
-	return nil
+	return searchResults, nil
 }
 
-func (rg *Ripgrep) MapToStruct(line []byte) (ResultSearch, error) {
+func (rg *Ripgrep) MapJSONToRGStruct(line []byte) (RGResultSearch, error) {
 	var m map[string]interface{}
 	err := json.Unmarshal(line, &m)
 	if err != nil {
 		return nil, err
 	}
 
-	var resultSearch ResultSearch
+	var resultSearch RGResultSearch
 
 	switch m["type"].(string) {
 	case "begin":
-		resultSearch = &ResultSearchBegin{}
+		resultSearch = &RGResultSearchBegin{}
 	case "match":
-		resultSearch = &ResultSearchMatch{}
+		resultSearch = &RGResultSearchMatch{}
 	case "end":
-		resultSearch = &ResultSearchEnd{}
+		resultSearch = &RGResultSearchEnd{}
 	case "summary":
-		resultSearch = &ResultSearchSummary{}
+		resultSearch = &RGResultSearchSummary{}
 	}
 
 	err = json.Unmarshal(line, resultSearch)
 
 	return resultSearch, err
+}
+
+func (rg *Ripgrep) MapToSearchResult(searchInput RGResultSearch) (SearchResult, error) {
+
+	return SearchResult{}, nil
 }
