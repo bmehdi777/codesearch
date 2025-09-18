@@ -2,12 +2,16 @@ package server
 
 import (
 	"codesearch/server/api"
+	"embed"
 	"fmt"
 	"net/http"
 )
 
 const PORT = "10001"
 const ADDR = "localhost"
+
+//go:embed all:webapp
+var assetsFolder embed.FS
 
 func NewServer() error {
 	topMux := http.NewServeMux()

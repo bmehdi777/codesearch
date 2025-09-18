@@ -4,6 +4,7 @@ import (
 	"codesearch/utils"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -29,65 +30,73 @@ type RGResultSearch struct {
 	Data json.RawMessage `json:"data"`
 }
 type RGDataBegin struct {
-	Path struct {
-		Text string `json:"text"`
-	} `json:"path"`
+	Data struct {
+		Path struct {
+			Text string `json:"text"`
+		} `json:"path"`
+	} `json:"data"`
 }
 type RGDataMatch struct {
-	Path struct {
-		Text string `json:"text"`
-	} `json:"path"`
-	Lines struct {
-		Text string `json:"text"`
-	} `json:"lines"`
-	LineNumber     int `json:"line_number"`
-	AbsoluteOffset int `json:"absolute_offset"`
-	Submatches     []struct {
-		Match struct {
+	Data struct {
+		Path struct {
 			Text string `json:"text"`
-		} `json:"match"`
-		Start int `json:"start"`
-		End   int `json:"end"`
-	} `json:"submatches"`
+		} `json:"path"`
+		Lines struct {
+			Text string `json:"text"`
+		} `json:"lines"`
+		LineNumber     int `json:"line_number"`
+		AbsoluteOffset int `json:"absolute_offset"`
+		Submatches     []struct {
+			Match struct {
+				Text string `json:"text"`
+			} `json:"match"`
+			Start int `json:"start"`
+			End   int `json:"end"`
+		} `json:"submatches"`
+	} `json:"data"`
 }
 type RGDataEnd struct {
-	Path struct {
-		Text string `json:"text"`
-	} `json:"path"`
-	BinaryOffset any `json:"binary_offset"`
-	Stats        struct {
-		Elapsed struct {
-			Secs  int    `json:"secs"`
-			Nanos int    `json:"nanos"`
-			Human string `json:"human"`
-		} `json:"elapsed"`
-		Searches          int `json:"searches"`
-		SearchesWithMatch int `json:"searches_with_match"`
-		BytesSearched     int `json:"bytes_searched"`
-		BytesPrinted      int `json:"bytes_printed"`
-		MatchedLines      int `json:"matched_lines"`
-		Matches           int `json:"matches"`
-	} `json:"stats"`
+	Data struct {
+		Path struct {
+			Text string `json:"text"`
+		} `json:"path"`
+		BinaryOffset any `json:"binary_offset"`
+		Stats        struct {
+			Elapsed struct {
+				Secs  int    `json:"secs"`
+				Nanos int    `json:"nanos"`
+				Human string `json:"human"`
+			} `json:"elapsed"`
+			Searches          int `json:"searches"`
+			SearchesWithMatch int `json:"searches_with_match"`
+			BytesSearched     int `json:"bytes_searched"`
+			BytesPrinted      int `json:"bytes_printed"`
+			MatchedLines      int `json:"matched_lines"`
+			Matches           int `json:"matches"`
+		} `json:"stats"`
+	} `json:"data"`
 }
 type RGDataSummary struct {
-	ElapsedTotal struct {
-		Human string `json:"human"`
-		Nanos int    `json:"nanos"`
-		Secs  int    `json:"secs"`
-	} `json:"elapsed_total"`
-	Stats struct {
-		BytesPrinted  int `json:"bytes_printed"`
-		BytesSearched int `json:"bytes_searched"`
-		Elapsed       struct {
+	Data struct {
+		ElapsedTotal struct {
 			Human string `json:"human"`
 			Nanos int    `json:"nanos"`
 			Secs  int    `json:"secs"`
-		} `json:"elapsed"`
-		MatchedLines      int `json:"matched_lines"`
-		Matches           int `json:"matches"`
-		Searches          int `json:"searches"`
-		SearchesWithMatch int `json:"searches_with_match"`
-	} `json:"stats"`
+		} `json:"elapsed_total"`
+		Stats struct {
+			BytesPrinted  int `json:"bytes_printed"`
+			BytesSearched int `json:"bytes_searched"`
+			Elapsed       struct {
+				Human string `json:"human"`
+				Nanos int    `json:"nanos"`
+				Secs  int    `json:"secs"`
+			} `json:"elapsed"`
+			MatchedLines      int `json:"matched_lines"`
+			Matches           int `json:"matches"`
+			Searches          int `json:"searches"`
+			SearchesWithMatch int `json:"searches_with_match"`
+		} `json:"stats"`
+	} `json:"data"`
 }
 
 func (rg *Ripgrep) Search() ([]SearchResult, error) {
@@ -99,10 +108,11 @@ func (rg *Ripgrep) Search() ([]SearchResult, error) {
 		return nil, errors.New("Path doesn't exist")
 	}
 
-	parameters := append([]string{rg.Query, rg.Path}, rg.Options...)
+	parameters := append([]string{rg.Query, rg.Path, "--json"}, rg.Options...)
 
 	result, err := utils.ExecCommand(COMMAND, parameters)
 	if err != nil {
+		fmt.Println("err here?")
 		return nil, err
 	}
 
@@ -110,8 +120,9 @@ func (rg *Ripgrep) Search() ([]SearchResult, error) {
 
 	searchResults := make([]SearchResult, 0)
 
-	for i := 0; i < len(lineResult); i++ {
-		bytesLine := []byte(lineResult[i])
+	// last item is an empty new line
+	for _, line := range lineResult[:len(lineResult)-1] {
+		bytesLine := []byte(line)
 
 		var rgResult RGResultSearch
 		err := json.Unmarshal(bytesLine, &rgResult)
@@ -126,7 +137,10 @@ func (rg *Ripgrep) Search() ([]SearchResult, error) {
 			if err != nil {
 				return nil, err
 			}
-			newSearchRes := SearchResult{}
+			newSearchRes := SearchResult{
+				Path:       begin.Data.Path.Text,
+				MatchLines: make([]MatchLine, 0),
+			}
 			searchResults = append(searchResults, newSearchRes)
 		case "match":
 			var match RGDataMatch
@@ -134,21 +148,20 @@ func (rg *Ripgrep) Search() ([]SearchResult, error) {
 			if err != nil {
 				return nil, err
 			}
-			lastSearchRes := searchResults[len(searchResults)-1]
-			matchLine := MatchLine{
-				LineContent: match.Lines.Text,
-				LineNumber: match.LineNumber,
+			lastSearchRes := &searchResults[len(searchResults)-1]
+			newMatch := MatchLine{
+				LineContent: match.Data.Lines.Text,
+				LineNumber:  match.Data.LineNumber,
 			}
-			lastSearchRes.MatchLines = append(lastSearchRes.MatchLines, matchLine)
+			lastSearchRes.MatchLines = append(lastSearchRes.MatchLines, newMatch)
 		case "end":
 			var end RGDataEnd
 			err = json.Unmarshal(bytesLine, &end)
 			if err != nil {
 				return nil, err
 			}
-			//lastSearchRes := searchResults[len(searchResults)-1]
-
-
+			lastSearchRes := &searchResults[len(searchResults)-1]
+			lastSearchRes.NumResults = end.Data.Stats.Matches
 		case "summary":
 			// for now, we ignore summary
 		}
