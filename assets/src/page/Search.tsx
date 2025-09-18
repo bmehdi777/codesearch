@@ -1,4 +1,6 @@
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useRef, useState } from "react";
 
 interface FormElements extends HTMLFormControlsCollection {
@@ -16,7 +18,6 @@ function Search() {
     const handleShortcuts = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === 'k') {
 				event.preventDefault();
-        setHasSearched(false);
         if (searchInputRef.current) {
           searchInputRef.current.focus();
 					searchInputRef.current.value = "";
@@ -47,14 +48,20 @@ function Search() {
     >
       <h1 className="text-4xl text-balance text-center mb-8">Codesearch</h1>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="flex gap-2">
         <Input
           ref={searchInputRef}
           name="searchInput"
           type="text"
           placeholder="Search your code..."
         />
+				<Button variant="outline" type="submit">
+					Search
+				</Button>
       </form>
+
+			{ /*todo*/ }
+			<Skeleton className="h-100 w-full rounded-xl mt-10"/>
     </div>
   );
 }
