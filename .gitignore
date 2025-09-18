@@ -1,2 +1,5 @@
 dist/*
 !dist/.gitkeep
+
+server/webapp/*
+!server/webapp/.gitkeep
