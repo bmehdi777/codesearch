@@ -8,5 +8,5 @@ build:
 
 build-webapp:
 	npm run build --prefix ./assets/
-	rm -rf ./server/webapp/assets/
-	cp -r ./assets/dist ./server/webapp/assets/
+	rm -rf ./server/webapp/dist/
+	cp -r ./assets/dist ./server/webapp/dist/
