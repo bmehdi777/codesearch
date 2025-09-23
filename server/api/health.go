@@ -1,7 +1,7 @@
 package api
 
 import (
-	"home/search"
+	"hsh/search"
 	"fmt"
 	"net/http"
 )

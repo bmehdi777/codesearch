@@ -1,7 +1,7 @@
 package search
 
 import (
-	"home/utils"
+	"hsh/utils"
 	"encoding/json"
 	"errors"
 	"fmt"

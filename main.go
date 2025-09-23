@@ -1,7 +1,7 @@
 package main
 
 import (
-	"home/server"
+	"hsh/server"
 	"fmt"
 	"os"
 )

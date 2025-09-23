@@ -46,7 +46,7 @@ function Search() {
     <div
       className={`flex flex-col justify-start w-3xl transform duration-100 ease-in-out ${hasSearched ? "justify-start mt-5 mx-auto" : "mt-64 mx-auto"}`}
     >
-      <h1 className="text-4xl text-balance text-center mb-8">Home</h1>
+      <h1 className="text-4xl text-balance text-center mb-8">HSH</h1>
 
       <form onSubmit={handleSubmit} className="flex gap-2">
         <Input

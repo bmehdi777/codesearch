@@ -1,4 +1,4 @@
-module home
+module hsh
 
 go 1.23.8
 

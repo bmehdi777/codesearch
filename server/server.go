@@ -1,7 +1,7 @@
 package server
 
 import (
-	"home/server/api"
+	"hsh/server/api"
 	"embed"
 	"fmt"
 	"io/fs"
