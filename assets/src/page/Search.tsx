@@ -1,3 +1,4 @@
+import SearchResult from "@/components/SearchResult";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,11 +17,11 @@ function Search() {
 
   useEffect(() => {
     const handleShortcuts = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.key === 'k') {
-				event.preventDefault();
+      if (event.ctrlKey && event.key === "k") {
+        event.preventDefault();
         if (searchInputRef.current) {
           searchInputRef.current.focus();
-					searchInputRef.current.value = "";
+          searchInputRef.current.value = "";
         }
       }
     };
@@ -37,8 +38,6 @@ function Search() {
     const searchValue = e.currentTarget.elements.searchInput.value;
     if (searchValue !== "") {
       setHasSearched(true);
-    } else {
-      setHasSearched(false);
     }
   };
 
@@ -46,7 +45,7 @@ function Search() {
     <div
       className={`flex flex-col justify-start w-3xl transform duration-100 ease-in-out ${hasSearched ? "justify-start mt-5 mx-auto" : "mt-64 mx-auto"}`}
     >
-      <h1 className="text-4xl text-balance text-center mb-8">HSH</h1>
+      <h1 className="text-4xl text-balance text-center mb-8">Code search</h1>
 
       <form onSubmit={handleSubmit} className="flex gap-2">
         <Input
@@ -55,13 +54,22 @@ function Search() {
           type="text"
           placeholder="Search your code..."
         />
-				<Button variant="outline" type="submit">
-					Search
-				</Button>
+        <Button variant="outline" type="submit">
+          Search
+        </Button>
       </form>
 
-			{ /*todo*/ }
-			<Skeleton className="h-100 w-full rounded-xl mt-10"/>
+      {/*todo*/}
+      {/* <Skeleton className="h-100 w-full rounded-xl mt-10" /> */}
+
+      {hasSearched && (
+        <>
+          <SearchResult containerClassName="my-2" />
+          <SearchResult containerClassName="my-2" />
+          <SearchResult containerClassName="my-2" />
+          <SearchResult containerClassName="my-2" />
+        </>
+      )}
     </div>
   );
 }
