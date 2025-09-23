@@ -1,7 +1,7 @@
 package main
 
 import (
-	"codesearch/server"
+	"home/server"
 	"fmt"
 	"os"
 )

@@ -1,7 +1,7 @@
 package server
 
 import (
-	"codesearch/server/api"
+	"home/server/api"
 	"embed"
 	"fmt"
 	"io/fs"

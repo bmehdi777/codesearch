@@ -1,7 +1,7 @@
 package api
 
 import (
-	"codesearch/search"
+	"home/search"
 	"fmt"
 	"net/http"
 )

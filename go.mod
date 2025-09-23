@@ -1,4 +1,4 @@
-module codesearch
+module home
 
 go 1.23.8
 

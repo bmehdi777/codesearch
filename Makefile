@@ -4,7 +4,7 @@ prepare:
 	go mod tidy
 
 build:
-	go build -o dist/codesearch main.go
+	go build -o dist/home main.go
 
 build-webapp:
 	npm run build --prefix ./assets/

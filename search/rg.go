@@ -1,7 +1,7 @@
 package search
 
 import (
-	"codesearch/utils"
+	"home/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
