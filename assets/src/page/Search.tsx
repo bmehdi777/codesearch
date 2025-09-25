@@ -42,33 +42,33 @@ function Search() {
   };
 
   return (
-    <div
-      className={`flex flex-col justify-start w-3xl transform duration-100 ease-in-out ${hasSearched ? "justify-start mt-5 mx-auto" : "mt-64 mx-auto"}`}
-    >
-      <h1 className="text-4xl text-balance text-center mb-8">Code search</h1>
-
-      <form onSubmit={handleSubmit} className="flex gap-2">
-        <Input
-          ref={searchInputRef}
-          name="searchInput"
-          type="text"
-          placeholder="Search your code..."
-        />
-        <Button variant="outline" type="submit">
-          Search
-        </Button>
-      </form>
+    <div className="flex flex-col justify-start w-full">
+      <div
+        className={`w-3xl ${hasSearched ? "justify-start mt-5 mx-auto" : "mt-120 mx-auto"}`}
+      >
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <Input
+            ref={searchInputRef}
+            name="searchInput"
+            type="text"
+            placeholder="Search your code..."
+          />
+          <Button variant="outline" type="submit">
+            Search
+          </Button>
+        </form>
+      </div>
 
       {/*todo*/}
       {/* <Skeleton className="h-100 w-full rounded-xl mt-10" /> */}
 
       {hasSearched && (
-        <>
-          <SearchResult containerClassName="my-2" />
-          <SearchResult containerClassName="my-2" />
-          <SearchResult containerClassName="my-2" />
-          <SearchResult containerClassName="my-2" />
-        </>
+        <div className="size-auto mx-10 mt-10 flex flex-col gap-6">
+          <SearchResult title="test" content="test"/>
+          <SearchResult title="test" content="test"/>
+          <SearchResult title="test" content="test"/>
+          <SearchResult title="test" content="test"/>
+        </div>
       )}
     </div>
   );
