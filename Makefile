@@ -3,7 +3,7 @@
 prepare:
 	go mod tidy
 
-build:
+build: build-webapp
 	go build -o dist/hsh main.go
 
 build-webapp:

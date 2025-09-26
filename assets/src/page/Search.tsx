@@ -1,7 +1,6 @@
 import SearchResult from "@/components/SearchResult";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useRef, useState } from "react";
 
 interface FormElements extends HTMLFormControlsCollection {
@@ -33,11 +32,18 @@ function Search() {
     };
   });
 
-  const handleSubmit = (e: React.FormEvent<SearchFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<SearchFormElement>) => {
     e.preventDefault();
     const searchValue = e.currentTarget.elements.searchInput.value;
     if (searchValue !== "") {
       setHasSearched(true);
+
+      await fetch("/api/search", {
+        method: "POST",
+        body: JSON.stringify({
+          query: searchValue,
+        }),
+      });
     }
   };
 
@@ -64,10 +70,10 @@ function Search() {
 
       {hasSearched && (
         <div className="size-auto mx-10 mt-10 flex flex-col gap-6">
-          <SearchResult title="test" content="test"/>
-          <SearchResult title="test" content="test"/>
-          <SearchResult title="test" content="test"/>
-          <SearchResult title="test" content="test"/>
+          <SearchResult title="test" content="test" />
+          <SearchResult title="test" content="test" />
+          <SearchResult title="test" content="test" />
+          <SearchResult title="test" content="test" />
         </div>
       )}
     </div>

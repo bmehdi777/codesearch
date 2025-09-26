@@ -1,8 +1,6 @@
 package api
 
 import (
-	"hsh/search"
-	"fmt"
 	"net/http"
 )
 
@@ -18,17 +16,6 @@ func (h *Health) router(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Health) get(w http.ResponseWriter, _ *http.Request) {
-	rg := search.Ripgrep{
-		Path: "/home/bmehdi/Workspace/perso",
-		Query: "test",
-	}
-	res, err := rg.Search()
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Println("err", err)
-		return
-	}
-	fmt.Println("res, ", res[0])
 	w.WriteHeader(http.StatusOK)
 }
  
